@@ -7,9 +7,11 @@ import {
   AiOutlineStar,
 } from "react-icons/ai";
 import Product from "../../components/Product";
+import { useStateContext } from "../../context/StateContext";
 const ProductDetail = ({ products, product }) => {
   const { image, name, details, price } = product;
   const [carouselIndex, setCarouselIndex] = useState(0);
+  const { qty, incQty, decQty, addProductToCart } = useStateContext();
   return (
     <div>
       <div className="product-detail-container">
@@ -52,18 +54,22 @@ const ProductDetail = ({ products, product }) => {
           <div className="quantity">
             <h3>Quantity:</h3>
             <p className="quantity-desc">
-              <span className="minus" onClick="">
+              <span className="minus" onClick={decQty}>
                 <AiOutlineMinus />
               </span>
-              <span className="num">0 </span>
-              <span className="plus" onClick="">
+              <span className="num">{qty}</span>
+              <span className="plus" onClick={incQty}>
                 <AiOutlinePlus />
               </span>
             </p>
           </div>
           {/* add to cart and buy now */}
           <div className="buttons">
-            <button type="button" className="add-to-cart">
+            <button
+              type="button"
+              className="add-to-cart"
+              onClick={() => addProductToCart(product, qty)}
+            >
               Add to Cart
             </button>
             <button type="button" className="buy-now">
@@ -78,7 +84,7 @@ const ProductDetail = ({ products, product }) => {
         <div className="marquee">
           <div className="maylike-products-container track">
             {products?.map((product) => (
-              <Product product={product} />
+              <Product product={product} key={product._id} />
             ))}
           </div>
         </div>
@@ -108,6 +114,11 @@ export const getStaticProps = async ({ params: { slug } }) => {
   const product_query = '*[_type == "product"]';
   const product = await client.fetch(query);
   const products = await client.fetch(product_query);
+  if (!product) {
+    return {
+      notFound: true,
+    };
+  }
   return { props: { products, product } };
 };
 export default ProductDetail;
