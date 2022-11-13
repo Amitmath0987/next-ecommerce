@@ -11,7 +11,16 @@ import { useStateContext } from "../../context/StateContext";
 const ProductDetail = ({ products, product }) => {
   const { image, name, details, price } = product;
   const [carouselIndex, setCarouselIndex] = useState(0);
-  const { qty, incQty, decQty, addProductToCart } = useStateContext();
+  const { qty, incQty, decQty, addProductToCart, showCartHandler, cartItems } =
+    useStateContext();
+  let isProductExist = cartItems?.find((item) => item._id === product?._id);
+  const handleBuyNow = (product, qty) => {
+    showCartHandler(true);
+    if (!isProductExist) {
+      addProductToCart(product, qty);
+    }
+  };
+
   return (
     <div>
       <div className="product-detail-container">
@@ -51,28 +60,38 @@ const ProductDetail = ({ products, product }) => {
           <h4>Details: </h4>
           <p>{details}</p>
           <p className="price">${price}</p>
-          <div className="quantity">
-            <h3>Quantity:</h3>
-            <p className="quantity-desc">
-              <span className="minus" onClick={decQty}>
-                <AiOutlineMinus />
-              </span>
-              <span className="num">{qty}</span>
-              <span className="plus" onClick={incQty}>
-                <AiOutlinePlus />
-              </span>
-            </p>
-          </div>
+          {!isProductExist && (
+            <div className="quantity">
+              <h3>Quantity:</h3>
+              <p className="quantity-desc">
+                <span className="minus" onClick={decQty}>
+                  <AiOutlineMinus />
+                </span>
+                <span className="num">{qty}</span>
+                <span className="plus" onClick={incQty}>
+                  <AiOutlinePlus />
+                </span>
+              </p>
+            </div>
+          )}
           {/* add to cart and buy now */}
           <div className="buttons">
             <button
               type="button"
               className="add-to-cart"
-              onClick={() => addProductToCart(product, qty)}
+              onClick={() =>
+                isProductExist
+                  ? showCartHandler(true)
+                  : addProductToCart(product, qty)
+              }
             >
-              Add to Cart
+              {`${isProductExist ? "Go" : "Add"} to Cart`}
             </button>
-            <button type="button" className="buy-now">
+            <button
+              type="button"
+              className="buy-now"
+              onClick={() => handleBuyNow(product, qty)}
+            >
               Buy Now
             </button>
           </div>
