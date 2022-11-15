@@ -138,6 +138,6 @@ export const getStaticProps = async ({ params: { slug } }) => {
       notFound: true,
     };
   }
-  return { props: { products, product } };
+  return { props: { products, product }, revalidate: 30 };
 };
 export default ProductDetail;
